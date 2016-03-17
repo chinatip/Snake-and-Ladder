@@ -5,30 +5,30 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+
+import com.ske.snakebaddesign.models.Board;
+import com.ske.snakebaddesign.models.Player;
+import com.ske.snakebaddesign.models.Square;
 
 public class BoardView extends View {
 
-    // Graphics variables
     private Paint paint;
     private float viewWidth;
     private float cellSize;
     private float padding;
     private float playerSize;
-    private int colorP1 = Color.WHITE;
-    private int colorP2 = Color.BLACK;
     private int colorBG = Color.parseColor("#6d8d46");
-    private int colorCell = Color.parseColor("#87aa4c");
+    private Board board;
     private int colorText = Color.parseColor("#cfe8a6");
-
-    // These variables will be used to keep track of what to render
     private int boardSize;
-    private int p1Position;
-    private int p2Position;
+    private int[] positions;
+    private int[] colors;
 
-    public BoardView(Context context) {
-        super(context);
-        init();
+    public void setComponents(int[] colors){
+        positions = new int[2];
+        this.colors = colors;
     }
 
     public BoardView(Context context, AttributeSet attrs) {
@@ -57,16 +57,13 @@ public class BoardView extends View {
 
     public void setBoardSize(int boardSize) {
         this.boardSize = boardSize;
+        board = new Board(boardSize);
         postInvalidate();
     }
 
-    public void setP1Position(int p1Position) {
-        this.p1Position = p1Position;
-        postInvalidate();
-    }
-
-    public void setP2Position(int p2Position) {
-        this.p2Position = p2Position;
+    public void setPosition(Player player){
+        int index = player.getNumber()-1;
+        positions[index] = player.getPosition();
         postInvalidate();
     }
 
@@ -91,14 +88,13 @@ public class BoardView extends View {
     }
 
     private void drawSquares(Canvas canvas) {
-
         for(int i = 0; i < boardSize; i++) {
             for(int j = 0; j < boardSize; j++) {
                 float startX = i * cellSize + padding/2;
                 float startY = j * cellSize + padding/2;
                 float endX = startX + cellSize - padding;
                 float endY = startY + cellSize - padding;
-                paint.setColor(colorCell);
+                paint.setColor(Color.GREEN);
                 canvas.drawRect(startX, startY, endX, endY, paint);
                 paint.setColor(colorText);
                 String label = (j *  boardSize + i + 1) + "";
@@ -108,16 +104,15 @@ public class BoardView extends View {
     }
 
     private void drawPlayerPieces(Canvas canvas) {
-        // Draw player 1 (0.33 is the 1/3 position of the cell height)
-        paint.setColor(colorP1);
-        float p1X = positionToCol(p1Position) * cellSize + cellSize/2;
-        float p1Y = positionToRow(p1Position) * cellSize + (cellSize * 0.33f);
-        canvas.drawCircle(p1X, p1Y, playerSize, paint);
-        // Draw player 2 (0.66 is the 2/3 position of the cell height)
-        paint.setColor(colorP2);
-        float p2X = positionToCol(p2Position) * cellSize + cellSize/2;
-        float p2Y = positionToRow(p2Position) * cellSize + (cellSize * 0.66f);
-        canvas.drawCircle(p2X, p2Y, playerSize, paint);
+        float mult = 1/(2+1f);
+        float temp = mult;
+        for(int i =0;i<2;i++){
+            paint.setColor(colors[i]);
+            float pX = positionToCol(positions[i]) * cellSize + cellSize/2;
+            float pY = positionToRow(positions[i]) * cellSize + (cellSize * mult);
+            mult += temp;
+            canvas.drawCircle(pX, pY, playerSize, paint);
+        }
     }
 
     private int positionToRow(int position) {
