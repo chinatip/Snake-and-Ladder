@@ -1,6 +1,6 @@
 Chinatip  Vichian 5710546551
 
-Which knowledge from GRASP were applied ?
+Using GRASP knowledge:
 << Creator >>
 Board - created by BoardView
 Piece - created by Player
